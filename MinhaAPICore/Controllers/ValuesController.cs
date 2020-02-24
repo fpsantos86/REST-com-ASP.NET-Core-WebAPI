@@ -8,8 +8,8 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace MinhaAPICore.Controllers
 {
+	//[ApiConventionType(typeof(DefaultApiConventions))]
 	[Route("api/[controller]")]
-	
 	public class ValuesController : MainController
 	{
 		// GET api/values
@@ -55,11 +55,12 @@ namespace MinhaAPICore.Controllers
 
 		// POST api/values
 		[HttpPost]
-		[ProducesResponseType(typeof(Product), StatusCodes.Status201Created)]
-		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		//[ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Post))]
 		public ActionResult Post([FromBody] Product product)
 		{
 			if (product.Id == 0) return BadRequest();
+
+			// add no banco
 
 			//return Ok(product);
 			return CreatedAtAction(nameof(Post), product);
@@ -67,8 +68,14 @@ namespace MinhaAPICore.Controllers
 
 		// PUT api/values/5
 		[HttpPut("{id}")]
-		public void Put([FromRoute]int id, [FromForm] Product value)
+		[ApiConventionMethod(typeof(DefaultApiConventions), nameof(DefaultApiConventions.Put))]
+		public ActionResult Put([FromRoute]int id, [FromForm] Product product)
 		{
+			if (!ModelState.IsValid) return BadRequest();
+
+			if (id != product.Id) return NotFound();
+
+			return NoContent();
 		}
 
 		// DELETE api/values/5
