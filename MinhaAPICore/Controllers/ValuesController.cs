@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MinhaAPICore.Controllers
@@ -12,9 +14,36 @@ namespace MinhaAPICore.Controllers
 	{
 		// GET api/values
 		[HttpGet]
-		public ActionResult<IEnumerable<string>> Get()
+		public ActionResult<IEnumerable<string>> ObterTodos()
 		{
-			return new string[] { "value1", "value2" };
+			var valores = new string[] { "value1", "value2" };
+
+			if (valores.Length < 5000)
+				return BadRequest();
+
+			return valores;
+		}
+
+		[HttpGet]
+		public ActionResult ObterResultado()
+		{
+			var valores = new string[] { "value1", "value2" };
+
+			if (valores.Length < 5000)
+				return BadRequest();
+
+			return Ok(valores);
+		}
+
+		[HttpGet("obter-valores")]
+		public IEnumerable<string> ObterValores()
+		{
+			var valores = new string[] { "value1", "value2" };
+
+			if (valores.Length < 5000)
+				return null;
+
+			return valores;
 		}
 
 		// GET api/values/obter-por-id/5
@@ -26,20 +55,34 @@ namespace MinhaAPICore.Controllers
 
 		// POST api/values
 		[HttpPost]
-		public void Post([FromBody] string value)
+		[ProducesResponseType(typeof(Product), StatusCodes.Status201Created)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		public ActionResult Post([FromBody] Product product)
 		{
+			if (product.Id == 0) return BadRequest();
+
+			//return Ok(product);
+			return CreatedAtAction(nameof(Post), product);
 		}
 
 		// PUT api/values/5
 		[HttpPut("{id}")]
-		public void Put(int id, [FromBody] string value)
+		public void Put([FromRoute]int id, [FromForm] Product value)
 		{
 		}
 
 		// DELETE api/values/5
 		[HttpDelete("{id}")]
-		public void Delete(int id)
+		public void Delete([FromQuery]int id)
 		{
 		}
+	}
+
+	public class Product {
+		public int Id { get; set; }
+		[Required]
+		public string Name { get; set; }
+		[Required]
+		public string Description { get; set; }
 	}
 }
