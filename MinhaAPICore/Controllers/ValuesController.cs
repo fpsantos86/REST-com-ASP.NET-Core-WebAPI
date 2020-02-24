@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace MinhaAPICore.Controllers
 {
 	[Route("api/[controller]")]
-	[ApiController]
-	public class ValuesController : ControllerBase
+	
+	public class ValuesController : MainController
 	{
 		// GET api/values
 		[HttpGet]
@@ -30,9 +30,9 @@ namespace MinhaAPICore.Controllers
 			var valores = new string[] { "value1", "value2" };
 
 			if (valores.Length < 5000)
-				return BadRequest();
+				return CustomResponse();
 
-			return Ok(valores);
+			return CustomResponse(valores);
 		}
 
 		[HttpGet("obter-valores")]
@@ -75,6 +75,35 @@ namespace MinhaAPICore.Controllers
 		[HttpDelete("{id}")]
 		public void Delete([FromQuery]int id)
 		{
+		}
+	}
+
+
+	public abstract class MainController : ControllerBase {
+		protected ActionResult CustomResponse(object result = null) {
+			if (OperacaoValida()) {
+				return Ok(new
+				{
+					success = true,
+					data = result
+				});
+			}
+
+			return BadRequest(new
+			{
+				success = false,
+				errors = ObterErros()
+			});
+		}
+
+		protected bool OperacaoValida() {
+			// as minhas validacoes
+			return true;
+
+		}
+
+		protected string ObterErros() {
+			return "";
 		}
 	}
 
